@@ -1,0 +1,27 @@
+version: v0
+kind: Pipeline
+name: Default
+services: []
+steps:
+  - name: Install Dependencies
+    image: node:latest
+    commands:
+      - npm install
+    next: Build Code
+  - name: Build Code
+    image: node:latest
+    commands:
+      - npm run build
+    next: Publish on Patr
+  - name: Publish on Patr
+    image: patrcloud/cli:latest
+    commands:
+      - patr login -u "$USERNAME" -p "$PASSWORD"
+      - patr workspace switch "$WORKSPACE_ID"
+      - patr site upload --site ./build "metabase-orientalgame.com" --msg
+        "$PATR_CI_COMMIT_MESSAGE"
+    environment:
+      USERNAME: seeyouwong
+      PASSWORD:
+        from_secret: ""
+      WORKSPACE_ID: 9a8418a6b7834776bc2a138bd915a044
